@@ -73,25 +73,38 @@ impl QuizAttempt {
     }
 
     fn generate_valid_set(&self) -> AnswerKeySet {
-        let mut valid_keys: Vec<AnswerKey> = vec![];
+        // let mut valid_keys: Vec<AnswerKey> = vec![];
+        let num_mistakes = self.answers.len() - self.score as usize;
 
-        for key in [Answer::A, Answer::B, Answer::C, Answer::D]
+        let mut answers_to_try: Vec<Vec<&Answer>> = [Answer::A, Answer::B, Answer::C, Answer::D]
             .iter()
-            .combinations_with_replacement(self.answers.len())
-        {
-            for p in key.iter().copied().permutations(self.answers.len()) {
-                // for x in key.iter().permutations(15) {
+            .combinations_with_replacement(num_mistakes)
+            .flat_map(|comb| comb.into_iter().permutations(num_mistakes))
+            .collect();
+        answers_to_try.dedup();
 
-                //     println!("{:?}", x);
-                // }
-                let akey = AnswerKey::from(p.into_iter().copied().collect::<Vec<Answer>>());
-                // println!("{:?}", akey);
-                if self.check(&akey) {
-                    valid_keys.push(akey)
-                }
-            }
-        }
-        AnswerKeySet::from(valid_keys)
+        AnswerKeySet::from(
+            (0..self.answers.len())
+                .combinations(num_mistakes)
+                .flat_map(|possible_mistakes| {
+                    // println!("{:?}", possible_mistakes);
+                    let mut small_key = vec![];
+                    // generate 2^n solutions
+                    for ans in &answers_to_try {
+                        let mut this_key = self.answers.clone();
+
+                        for (&add, &a) in possible_mistakes.clone().iter().zip(ans) {
+                            this_key[add] = a.clone();
+                        }
+
+                        // println!("{:?}", this_key);
+                        small_key.push(AnswerKey::from(this_key));
+                    }
+
+                    small_key
+                })
+                .collect::<Vec<AnswerKey>>(),
+        )
     }
 }
 
@@ -111,10 +124,10 @@ fn main() {
     let attempt = QuizAttempt::from_string("DCBCCADADBDDBBD", 13);
     let mut answerset = attempt.generate_valid_set();
 
-    // answerset = answerset.reduce(QuizAttempt::from_string("CCBCAADADADDBBA", 11));
-    // answerset = answerset.reduce(QuizAttempt::from_string("CBBCBADADADDBBB", 11));
-    // answerset = answerset.reduce(QuizAttempt::from_string("CBBCBADADADDBAD", 11));
-    // answerset = answerset.reduce(QuizAttempt::from_string("CBBCAADADACDCAA", 7));
+    answerset = answerset.reduce(QuizAttempt::from_string("CCBCAADADADDBBA", 11));
+    answerset = answerset.reduce(QuizAttempt::from_string("CBBCBADADADDBBB", 11));
+    answerset = answerset.reduce(QuizAttempt::from_string("CBBCBADADADDBAD", 11));
+    answerset = answerset.reduce(QuizAttempt::from_string("CBBCAADADACDCAA", 7));
 
     println!("{}", answerset.keys.len());
 }
