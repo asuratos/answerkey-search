@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use std::io::{stdin, Read};
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 enum Answer {
@@ -49,6 +50,7 @@ impl From<Vec<AnswerKey>> for AnswerKeySet {
 
 impl QuizAttempt {
     fn from_string(string: &str, score: i32) -> QuizAttempt {
+        // TODO: Panic with score > len
         QuizAttempt {
             answers: string
                 .to_uppercase()
@@ -121,15 +123,30 @@ impl AnswerKeySet {
 }
 
 fn main() {
-    let attempt = QuizAttempt::from_string("DCBCCADADBDDBBD", 13);
-    let mut answerset = attempt.generate_valid_set();
+    // TODO: Parse from txt
 
-    answerset = answerset.reduce(QuizAttempt::from_string("CCBCAADADADDBBA", 11));
-    answerset = answerset.reduce(QuizAttempt::from_string("CBBCBADADADDBBB", 11));
-    answerset = answerset.reduce(QuizAttempt::from_string("CBBCBADADADDBAD", 11));
-    answerset = answerset.reduce(QuizAttempt::from_string("CBBCAADADACDCAA", 7));
+    // TODO: Sort from highest to lowest score
+
+    let attempt = QuizAttempt::from_string("BCABBDBCAD", 5);
+
+    // TODO: fold(attmpt1, |acc, x| acc.reduce(x))
+
+    let mut answerset = attempt.generate_valid_set();
+    answerset = answerset.reduce(QuizAttempt::from_string("CCBBCBABAD", 6));
+    answerset = answerset.reduce(QuizAttempt::from_string("BCDBACABAD", 6));
+    answerset = answerset.reduce(QuizAttempt::from_string("BCCBCAADAD", 6));
+    answerset = answerset.reduce(QuizAttempt::from_string("BCDBCBACAA", 6));
+    answerset = answerset.reduce(QuizAttempt::from_string("BCDBBDBBBD", 5));
+    answerset = answerset.reduce(QuizAttempt::from_string("CCBBBAACBD", 4));
+    answerset = answerset.reduce(QuizAttempt::from_string("CCBBACBBAB", 3));
 
     println!("{}", answerset.keys.len());
+
+    for ans in answerset.keys {
+        println!("{:?}", ans.answers);
+    }
+
+    stdin().read(&mut [0]).unwrap();
 }
 
 #[cfg(test)]
