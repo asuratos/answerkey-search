@@ -229,6 +229,7 @@ fn main() {
 
     println!("Searching for possible answers (This could take a while)...");
 
+    // TODO: This should probably be implemented in AnswerKeySet
     let highest = base[0].generate_valid_set();
 
     let answerset = &base[1..base.len()]
