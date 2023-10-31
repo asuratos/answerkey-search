@@ -12,6 +12,7 @@ enum Answer {
     B,
     C,
     D,
+    X,
 }
 
 impl fmt::Display for Answer {
@@ -21,6 +22,7 @@ impl fmt::Display for Answer {
             Answer::B => write!(f, "B"),
             Answer::C => write!(f, "C"),
             Answer::D => write!(f, "D"),
+            Answer::X => write!(f, "X"),
         }
     }
 }
@@ -32,6 +34,7 @@ impl From<char> for Answer {
             'B' => Answer::B,
             'C' => Answer::C,
             'D' => Answer::D,
+            'X' => Answer::X,
             _ => panic!("Invalid letter: {}", value),
         }
     }
@@ -254,12 +257,13 @@ mod tests {
         assert_eq!(Answer::from('B'), Answer::B);
         assert_eq!(Answer::from('C'), Answer::C);
         assert_eq!(Answer::from('D'), Answer::D);
+        assert_eq!(Answer::from('X'), Answer::X);
     }
 
     #[test]
     #[should_panic]
     fn invalid_answer() {
-        Answer::from('X');
+        Answer::from('E');
     }
 
     #[test]
