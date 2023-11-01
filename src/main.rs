@@ -154,6 +154,7 @@ impl QuizAttempt {
 
                     small_key
                 })
+                .filter(|key| !key.answers.contains(&Answer::X))
                 .collect::<Vec<AnswerKey>>();
             small_set.sort();
             small_set.dedup();
